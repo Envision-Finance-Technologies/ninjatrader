@@ -215,7 +215,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                     var filter = Builders<LiveOpenPositions>.Filter.Eq(x => x.Id, ObjectId.Parse(id)) &
                     Builders<LiveOpenPositions>.Filter.Eq(x => x.OpenPosition, true);
                     //var update = Builders<LiveOpenPositions>.Update.Set(r => r.NinjaStatus, status).Set(r => r.NinjaQuantity, quantity);
-                    var update = Builders<LiveOpenPositions>.Update.Set(r => r.NinjaStatus, status);
+                    var update = Builders<LiveOpenPositions>.Update.Set(r => r.NinjaStatus, status).Set(r => r.NinjaQuantity, quantity);
                     _collection.UpdateOne(filter, update);
 
                     //Insert 
@@ -493,6 +493,51 @@ namespace NinjaTrader.NinjaScript.Strategies
             return result;   
         }
 
+        //public OrderTracking GetExitPosition(string symbol)
+        //{
+        //    LiveOpenPositions result = new LiveOpenPositions();
+        //    OrderTracking order_t = new OrderTracking();
+        //    try
+        //    {
+        //        //symbol = SwitchSymbol(symbol);
+        //        var instrument_changed = SwitchSymbol(symbol);
+
+        //        MongoClient client_remote = new MongoClient(Database.GetUriDb());
+        //        IMongoDatabase db_remote = client_remote.GetDatabase(server_name);
+        //        //var _collection = db_remote.GetCollection<LiveOpenPositions>(collection);
+
+        //        IMongoCollection<LiveOpenPositions> _collection = db_remote.GetCollection<LiveOpenPositions>(collection);
+        //        var builder = Builders<LiveOpenPositions>.Filter;
+        //        var filter = builder.Eq(i => i.Symbol, instrument_changed) & builder.Eq(i => i.OpenPosition, false) & builder.Eq(i => i.NinjaStatus, "En Proceso");
+        //        var sort = Builders<LiveOpenPositions>.Sort.Descending(p => p.EntryDate);
+        //        result = _collection.Find(filter).Sort(sort).Limit(1).FirstOrDefault();
+
+        //        if(result != null && result.OpenPosition == false) 
+        //        {
+        //            var _id = result.Id;
+        //            IMongoCollection<OrderTracking> _collection_t = db_remote.GetCollection<OrderTracking>(collection);
+        //            var builder_t = Builders<OrderTracking>.Filter;
+        //            var filter_t = builder_t.Eq(i => i.Id, _id) & builder_t.Eq(i => i.Symbol, instrument_changed) & builder_t.Eq(i => i.NinjaStatus, "En Proceso");
+        //            var sort_t = Builders<OrderTracking>.Sort.Descending(p => p.EntryDate);
+        //            order_t = _collection_t.Find(filter_t).Sort(sort_t).Limit(1).FirstOrDefault();
+        //        }
+
+        //        //if (result != null)
+        //        //{
+        //        //    Print(result);
+        //        //    Print(result.Symbol);
+        //        //    Print(result.Direction);
+        //        //    Print(result.Group);
+        //        //}
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Print("ERROR GET EXIT POSITION " + ex.Message);
+        //    }
+
+        //    return order_t;
+        //}
+
         public LiveOpenPositions GetExitPosition(string symbol)
         {
             LiveOpenPositions result = new LiveOpenPositions();
@@ -519,7 +564,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                 //    Print(result.Group);
                 //}
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 Print("ERROR GET EXIT POSITION " + ex.Message);
             }
