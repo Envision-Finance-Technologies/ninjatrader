@@ -572,6 +572,40 @@ namespace NinjaTrader.NinjaScript.Strategies
             return result;
         }
 
+        public LiveOpenPositions GetExitPositionPen(string symbol)
+        {
+            LiveOpenPositions result = new LiveOpenPositions();
+            try
+            {
+                //symbol = SwitchSymbol(symbol);
+                var instrument_changed = SwitchSymbol(symbol);
+
+                MongoClient client_remote = new MongoClient(Database.GetUriDb());
+                IMongoDatabase db_remote = client_remote.GetDatabase(server_name);
+                //var _collection = db_remote.GetCollection<LiveOpenPositions>(collection);
+
+                IMongoCollection<LiveOpenPositions> _collection = db_remote.GetCollection<LiveOpenPositions>(collection);
+                var builder = Builders<LiveOpenPositions>.Filter;
+                var filter = builder.Eq(i => i.Symbol, instrument_changed) & builder.Eq(i => i.OpenPosition, false) & (builder.Eq(i => i.NinjaStatus, "En Proceso") | builder.Eq(i => i.NinjaStatus, "Salida Aceptada"));
+                var sort = Builders<LiveOpenPositions>.Sort.Descending(p => p.EntryDate);
+                result = _collection.Find(filter).Sort(sort).Limit(1).FirstOrDefault();
+
+                //if (result != null)
+                //{
+                //    Print(result);
+                //    Print(result.Symbol);
+                //    Print(result.Direction);
+                //    Print(result.Group);
+                //}
+            }
+            catch (Exception ex)
+            {
+                Print("ERROR GET EXIT POSITION " + ex.Message);
+            }
+
+            return result;
+        }
+
         public string SwitchSymbol(string symbol)
         {
             if (symbol == "MES")
