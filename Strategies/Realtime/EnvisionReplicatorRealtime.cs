@@ -82,7 +82,7 @@ namespace NinjaTrader.NinjaScript.Strategies.Realtime
 					//Print("STEP 1");
 					//var liveOpenPositions = GetOpenPosition(InstrumentName);
 
-					var listStrategiesReorder = ReorderDB();
+					var listStrategiesReorder = ReorderDB(); // Salida Aceptada o Entrada Aceptada.
 
 					if (listStrategiesReorder != null)
 					{
@@ -166,41 +166,49 @@ namespace NinjaTrader.NinjaScript.Strategies.Realtime
 				var exit_name = "Exit_" + id + "_" + Account.Name;
 				//Print("DIRECTION EXIT: " + StrategyExit.Direction);
 				//Print("ES UNA SALIDA");
+				if (Position.MarketPosition != MarketPosition.Flat)
+				{
+					if (StrategyExit.Direction == "Long")
+					{
+						StopLossLongCondition(CurrentSecondarySeries, StrategyExit.StopLossPrice, StrategyExit.NinjaQuantity, exit_name, signal_name);
+						ProfitTargetLongCondition(CurrentSecondarySeries, StrategyExit.StopLossPrice, StrategyExit.NinjaQuantity, exit_name, signal_name);
+						//StrategyExitLong(CurrentMainSeries, StrategyExit.Quantity, exit_name, signal_name);
+					}
+					else if (StrategyExit.Direction == "Short")
+					{
 
-				if (StrategyExit.Direction == "Long")
-				{
-					StopLossLongCondition(CurrentSecondarySeries, StrategyExit.StopLossPrice, StrategyExit.NinjaQuantity, exit_name, signal_name);
-					ProfitTargetLongCondition(CurrentSecondarySeries, StrategyExit.StopLossPrice, StrategyExit.NinjaQuantity, exit_name, signal_name);
-					//StrategyExitLong(CurrentMainSeries, StrategyExit.Quantity, exit_name, signal_name);
-				}
-				else if (StrategyExit.Direction == "Short")
-				{
-					
-					StopLossShortCondition(CurrentSecondarySeries, StrategyExit.StopLossPrice, StrategyExit.NinjaQuantity, exit_name, signal_name);
-					ProfitTargetShortCondition(CurrentSecondarySeries, StrategyExit.StopLossPrice, StrategyExit.NinjaQuantity, exit_name, signal_name);
-					//StrategyExitShort(CurrentMainSeries, StrategyExit.Quantity, exit_name, signal_name);
+						StopLossShortCondition(CurrentSecondarySeries, StrategyExit.StopLossPrice, StrategyExit.NinjaQuantity, exit_name, signal_name);
+						ProfitTargetShortCondition(CurrentSecondarySeries, StrategyExit.StopLossPrice, StrategyExit.NinjaQuantity, exit_name, signal_name);
+						//StrategyExitShort(CurrentMainSeries, StrategyExit.Quantity, exit_name, signal_name);
+					}
 				}
 			}
 
+			var StrategyExitt = GetExitPositionPen(InstrumentName);
+
 			//Entries
-			if (StrategyEntry != null)
+			if (StrategyEntry != null && StrategyExitt == null)
 			{
 				var id = StrategyEntry.Id.ToString();
 				var signal_name = "Entry_" + id + "_" + Account.Name;
 				//Print("DIRECTION ENTRY: " + StrategyEntry.Direction);
 
-				if (StrategyEntry.Direction == "Long")
+				if (Position.MarketPosition == MarketPosition.Flat)
 				{
-					//positionSize = GetPositionSize(BarsArray[CurrentMainSeries].Instrument.MasterInstrument, Closes[CurrentMainSeries][0]);
-					positionSize = GetPositionSize(BarsArray[CurrentMainSeries].Instrument.MasterInstrument, Closes[CurrentMainSeries][0], StrategyEntry.StopLossPrice, StrategyEntry.Risk, StrategyEntry.ContractSize);
-					StrategyEnterLong(CurrentSecondarySeries, positionSize, signal_name);
-					//StrategyEnterLong(CurrentMainSeries, StrategyEntry.Quantity, signal_name);
-				}
-				else if (StrategyEntry.Direction == "Short")
-				{
-					positionSize = GetPositionSize(BarsArray[CurrentMainSeries].Instrument.MasterInstrument, Closes[CurrentMainSeries][0], StrategyEntry.StopLossPrice, StrategyEntry.Risk, StrategyEntry.ContractSize);
-					StrategyEnterShort(CurrentSecondarySeries, positionSize, signal_name);
-					//StrategyEnterShort(CurrentMainSeries, StrategyEntry.Quantity, signal_name);
+
+					if (StrategyEntry.Direction == "Long")
+					{
+						//positionSize = GetPositionSize(BarsArray[CurrentMainSeries].Instrument.MasterInstrument, Closes[CurrentMainSeries][0]);
+						positionSize = GetPositionSize(BarsArray[CurrentMainSeries].Instrument.MasterInstrument, Closes[CurrentMainSeries][0], StrategyEntry.StopLossPrice, StrategyEntry.Risk, StrategyEntry.ContractSize);
+						StrategyEnterLong(CurrentSecondarySeries, positionSize, signal_name);
+						//StrategyEnterLong(CurrentMainSeries, StrategyEntry.Quantity, signal_name);
+					}
+					else if (StrategyEntry.Direction == "Short")
+					{
+						positionSize = GetPositionSize(BarsArray[CurrentMainSeries].Instrument.MasterInstrument, Closes[CurrentMainSeries][0], StrategyEntry.StopLossPrice, StrategyEntry.Risk, StrategyEntry.ContractSize);
+						StrategyEnterShort(CurrentSecondarySeries, positionSize, signal_name);
+						//StrategyEnterShort(CurrentMainSeries, StrategyEntry.Quantity, signal_name);
+					}
 				}
 			}
 		}
