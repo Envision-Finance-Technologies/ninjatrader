@@ -307,15 +307,17 @@ namespace NinjaTrader.NinjaScript.Strategies
 
                 if (result.NinjaStatus == "En Proceso" || result.NinjaStatus == "Salida Aceptada")
                 {
-                    if (status == "Salida Parcial")
-                    {
-                        var filter = Builders<LiveOpenPositions>.Filter.Eq(x => x.Id, ObjectId.Parse(id)) &
-                        Builders<LiveOpenPositions>.Filter.Eq(x => x.OpenPosition, false);
-                        var update = Builders<LiveOpenPositions>.Update.Set(r => r.NinjaStatus, status);
-                        _collection.UpdateOne(filter, update);
-                    }
-                    else
-                    {
+                    //if (status == "Salida Parcial")
+                    //{
+                    //    var filter = Builders<LiveOpenPositions>.Filter.Eq(x => x.Id, ObjectId.Parse(id)) &
+                    //    Builders<LiveOpenPositions>.Filter.Eq(x => x.OpenPosition, false);
+                    //    var update = Builders<LiveOpenPositions>.Update.Set(r => r.NinjaStatus, status);
+                    //    _collection.UpdateOne(filter, update);
+
+
+                    //}
+                    //else
+                    //{
                         var filter = Builders<LiveOpenPositions>.Filter.Eq(x => x.Id, ObjectId.Parse(id)) &
                         Builders<LiveOpenPositions>.Filter.Eq(x => x.OpenPosition, false);
                         var update = Builders<LiveOpenPositions>.Update.Set(r => r.NinjaStatus, status);
@@ -324,8 +326,11 @@ namespace NinjaTrader.NinjaScript.Strategies
                         var strategy_id = result.StrategyId;
                         var ot_collection = db_remote.GetCollection<OrderTracking>(order_tracking_collection);
 
-                        var ot_filter = Builders<OrderTracking>.Filter.Eq(x => x.StrategyId, strategy_id);
-                        var ot_result = ot_collection.Find(ot_filter).FirstOrDefault();
+                        //var ot_filter = Builders<OrderTracking>.Filter.Eq(x => x.StrategyId, strategy_id);
+                        var ot_filter = Builders<OrderTracking>.Filter.Eq(x => x.OpenpositionId, id);
+                        var ot_sort = Builders<OrderTracking>.Sort.Descending(p => p.EntryDate);
+                        //var result = _collection.Find(filter_status).Sort(sort).Limit(1).FirstOrDefault();
+                        var ot_result = ot_collection.Find(ot_filter).Sort(ot_sort).Limit(1).FirstOrDefault();
 
                         var signal_name = "Entry_" + id + "_" + Account.Name;
                         var exit_name = "Exit_" + id + "_" + Account.Name;
@@ -357,7 +362,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                         //};
 
                         //ot_collection.InsertOne(ot);
-                    }
+                    //}
                 }
 
                 //var filter = builder.Eq(i => i.Symbol, InstrumentName) & !builder.AnyIn("ask.price", new[] { 0 }) & !builder.AnyIn("bid.price", new[] { 0 });
