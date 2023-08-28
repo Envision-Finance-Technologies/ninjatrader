@@ -206,14 +206,15 @@ namespace NinjaTrader.NinjaScript.Strategies
                 var _collection = db_remote.GetCollection<LiveOpenPositions>(collection);
 
                 var builder = Builders<LiveOpenPositions>.Filter;
-                var filter_status = "{'_id': ObjectId('" + id + "'), 'open_position': true }";
+                var filter_status = "{'_id': ObjectId('" + id + "'), 'open_position': true, 'type': 'news_oscillator' }";
                 var sort = Builders<LiveOpenPositions>.Sort.Descending(p => p.EntryDate);
                 var result = _collection.Find(filter_status).Sort(sort).Limit(1).FirstOrDefault();
 
                 if (result.NinjaStatus == "Pendiente" || result.NinjaStatus == "Entrada Aceptada")
                 {
                     var filter = Builders<LiveOpenPositions>.Filter.Eq(x => x.Id, ObjectId.Parse(id)) &
-                    Builders<LiveOpenPositions>.Filter.Eq(x => x.OpenPosition, true);
+                    Builders<LiveOpenPositions>.Filter.Eq(x => x.OpenPosition, true) &
+                    Builders<LiveOpenPositions>.Filter.Eq(x => x.Type, "news_oscillator");
                     //var update = Builders<LiveOpenPositions>.Update.Set(r => r.NinjaStatus, status).Set(r => r.NinjaQuantity, quantity);
                     var update = Builders<LiveOpenPositions>.Update.Set(r => r.NinjaStatus, status).Set(r => r.NinjaQuantity, quantity);
                     _collection.UpdateOne(filter, update);
@@ -245,6 +246,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                         SignalName = signal_name,
                         ExitDate = null,
                         Exit = false,
+                        Type = "news_oscillator"
                         //Trainling_Stop = trailing
                     };
 
@@ -298,7 +300,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                 MongoClient client_remote = new MongoClient(Database.GetUriDb());
                 IMongoDatabase db_remote = client_remote.GetDatabase(server_name);
                 var _collection = db_remote.GetCollection<LiveOpenPositions>(collection);
-                var filter_status = "{'_id': ObjectId('" + id + "'), 'open_position': false }";
+                var filter_status = "{'_id': ObjectId('" + id + "'), 'open_position': false, type:'news_oscillator' }";
                 var sort = Builders<LiveOpenPositions>.Sort.Descending(p => p.EntryDate);
                 var result = _collection.Find(filter_status).Sort(sort).Limit(1).FirstOrDefault();
 
@@ -319,7 +321,8 @@ namespace NinjaTrader.NinjaScript.Strategies
                     //else
                     //{
                         var filter = Builders<LiveOpenPositions>.Filter.Eq(x => x.Id, ObjectId.Parse(id)) &
-                        Builders<LiveOpenPositions>.Filter.Eq(x => x.OpenPosition, false);
+                        Builders<LiveOpenPositions>.Filter.Eq(x => x.OpenPosition, false) &
+                        Builders<LiveOpenPositions>.Filter.Eq(x => x.Type, "news_oscillator");
                         var update = Builders<LiveOpenPositions>.Update.Set(r => r.NinjaStatus, status);
                         //var update = Builders<LiveOpenPositions>.Update.Set(r => r.NinjaStatus, status).Set(r => r.NinjaQuantity, quantity);
                         _collection.UpdateOne(filter, update);
@@ -477,7 +480,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 
                 IMongoCollection<LiveOpenPositions> _collection = db_remote.GetCollection<LiveOpenPositions>(collection);
                 var builder = Builders<LiveOpenPositions>.Filter;
-                var filter = builder.Eq(i => i.Symbol, instrument_changed) & builder.Eq(i => i.OpenPosition, true) & builder.Eq(i => i.NinjaStatus, "Pendiente");
+                var filter = builder.Eq(i => i.Symbol, instrument_changed) & builder.Eq(i => i.OpenPosition, true) & builder.Eq(i => i.NinjaStatus, "Pendiente") & builder.Eq(i => i.Type, "news_oscillator");
                 var sort = Builders<LiveOpenPositions>.Sort.Descending(p => p.EntryDate);
                 result = _collection.Find(filter).Sort(sort).Limit(1).FirstOrDefault();
 
@@ -557,7 +560,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 
                 IMongoCollection<LiveOpenPositions> _collection = db_remote.GetCollection<LiveOpenPositions>(collection);
                 var builder = Builders<LiveOpenPositions>.Filter;
-                var filter = builder.Eq(i => i.Symbol, instrument_changed) & builder.Eq(i => i.OpenPosition, false) & builder.Eq(i => i.NinjaStatus, "En Proceso");
+                var filter = builder.Eq(i => i.Symbol, instrument_changed) & builder.Eq(i => i.OpenPosition, false) & builder.Eq(i => i.NinjaStatus, "En Proceso") & builder.Eq(i => i.Type, "news_oscillator");
                 var sort = Builders<LiveOpenPositions>.Sort.Descending(p => p.EntryDate);
                 result = _collection.Find(filter).Sort(sort).Limit(1).FirstOrDefault();
 
@@ -591,7 +594,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 
                 IMongoCollection<LiveOpenPositions> _collection = db_remote.GetCollection<LiveOpenPositions>(collection);
                 var builder = Builders<LiveOpenPositions>.Filter;
-                var filter = builder.Eq(i => i.Symbol, instrument_changed) & builder.Eq(i => i.OpenPosition, false) & (builder.Eq(i => i.NinjaStatus, "En Proceso") | builder.Eq(i => i.NinjaStatus, "Salida Aceptada"));
+                var filter = builder.Eq(i => i.Symbol, instrument_changed) & builder.Eq(i => i.OpenPosition, false) & builder.Eq(i => i.Type, "news_oscillator") & (builder.Eq(i => i.NinjaStatus, "En Proceso") | builder.Eq(i => i.NinjaStatus, "Salida Aceptada"));
                 var sort = Builders<LiveOpenPositions>.Sort.Descending(p => p.EntryDate);
                 result = _collection.Find(filter).Sort(sort).Limit(1).FirstOrDefault();
 
@@ -633,7 +636,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                 IMongoDatabase db_remote = client_remote.GetDatabase(server_name);
                 var _collection = db_remote.GetCollection<LiveOpenPositions>(collection);
 
-                var filter_status = "{'symbol': '" + instrument_changed + "', nt_status: {'$in':['Entrada Aceptada', 'Salida Aceptada'] } }";
+                var filter_status = "{'symbol': '" + instrument_changed + "', nt_status: {'$in':['Entrada Aceptada', 'Salida Aceptada'] }, 'type': 'news_oscillator' }";
                 var sort = Builders<LiveOpenPositions>.Sort.Descending(p => p.EntryDate);
                 result = _collection.Find(filter_status).ToList();
 
@@ -664,7 +667,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                 //IMongoDatabase db_remote = client_remote.GetDatabase(server_name);
                 //var _collection = db_remote.GetCollection<LiveOpenPositions>(collection);
                 //Print("RECUPERANDO INSTRUMENT NAME " + instrument_changed);
-                var filter_status = "{'symbol': '" + instrument_changed + "', nt_status: 'En Proceso'}";
+                var filter_status = "{'symbol': '" + instrument_changed + "', nt_status: 'En Proceso', 'type': 'news_oscillator'}";
                 //var filter_status = "{'symbol': '" + instrument_changed + "', nt_status: 'En Proceso'}";
 
                 var sort = Builders<OrderTracking>.Sort.Descending(p => p.EntryDate);
@@ -744,7 +747,7 @@ namespace NinjaTrader.NinjaScript.Strategies
             //pz = (Capital * (riskLevel)) / ((buyPrice - (StopLossPrice)) * contract_size);
             //pz = pz < 1 ? 1 : pz;
             //return (int)pz;
-            return 6;
+            return 10;
         }
 
         #region StopLossConditions
@@ -1018,6 +1021,8 @@ namespace NinjaTrader.NinjaScript.Strategies
             public bool? Exit { get; set; }
             [BsonElement("open_position_id")]
             public String OpenpositionId { get; set; }
+            [BsonElement("type")]
+            public String Type { get; set; }
             //[BsonElement("trailing_stop")]
             //public Double? Trainling_Stop { get; set; }
         }
@@ -1056,6 +1061,8 @@ namespace NinjaTrader.NinjaScript.Strategies
             public Double Risk { get; set; }
             [BsonElement("contract_size")]
             public Double ContractSize { get; set; }
+            [BsonElement("type")]
+            public String Type { get; set; }
             [BsonExtraElements]
             [BsonElement("extra_parameters")]
             [JsonIgnore]

@@ -91,7 +91,7 @@ namespace NinjaTrader.NinjaScript.Strategies.Realtime
 						{
 							//if (liveOpenPositions != null && (String.IsNullOrEmpty(liveOpenPositions.NinjaStatus)))
 							//Print("Que tenemos en Open Position: " + r.OpenPosition);
-							if (r.OpenPosition)
+							if (r.OpenPosition && r.Type == "news_oscillator")
 							{
 								//Print("Dentro de la Opcion Open Position");
 								var id = r.Id.ToString();
@@ -112,7 +112,7 @@ namespace NinjaTrader.NinjaScript.Strategies.Realtime
 									//StrategyEnterShort(CurrentMainSeries, r.Quantity, signal_name);
                                 }
 							}
-							else if (!r.OpenPosition)
+							else if (!r.OpenPosition && r.Type == "news_oscillator")
 							{
 								var id = r.Id.ToString();
 								var signal_name = "Entry_" + id + "_" + Account.Name;
